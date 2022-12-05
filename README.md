@@ -7,3 +7,13 @@
 - lombok
 - mustache
 - mariadb
+
+### mustache 한글깨짐 이슈
+- 스프링부트 2.7.x 버전에서는 mustache가 한글이 깨질 수 있다고 한다.
+- 해결방법 
+    1. 스프링부트 버전을 내린다.
+    2. yml에 다음과 같이 설정해준다.
+    
+```
+server.servlet.encoding.force-response: true
+```
