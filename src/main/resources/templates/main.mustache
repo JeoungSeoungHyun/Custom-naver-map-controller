@@ -7,65 +7,52 @@
     <title>간단한 지도 표시하기</title>
     <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=lhg13pdjls"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <!-- 1. 파노라마 사용을 위한 cdn url을 추가-->
     <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=lhg13pdjls&submodules=panorama"></script>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-<!-- <div id="map" style="width:100%;height:400px;"></div> -->
-<!-- 2. 지도를 삽입할 DOM 요소를 지정 -->
-<div id="pano" style="width: 100%; height:400px;"></div>
 
-<!-- <script src="/js/main.js"></script> -->
+<div id="map" style="width:100%;height:400px; z-index: 1;"></div>
+<div id="pano" style="width: 100%; height:400px; position: absolute; top:0; z-index: 2;"></div>
+<button id="quit" class="btn" style="position: absolute; z-index: 3; top:0; right: 0; display: none;" onclick="quit">X</button>
+<!-- <button id="quit" class="btn" style="z-index: 3; top:0; right: 0;" onclick="quit()">X</button> -->
+
+<script src="/js/main.js"></script>
 <script>
-    let pano = null;
+    // 1. 거리뷰 레이어 생성
+    let streetLayer = new naver.maps.StreetLayer();
+    naver.maps.Event.once(map, 'init', function() {
+        streetLayer.setMap(null);
+    });
 
-    function initPanorama(){
-
-        // 3. 파노라마 옵션 설정하기
-        let panoramaOptions = {
-            position: new naver.maps.LatLng(37.3599605, 127.1058814),
-            //size: new naver.map.Size(800, 600),
-            pov: {
-                pan: -135,
-                tilt: 29,
-                fov: 100
-            },
-            minScale: 0,
-            maxScale: 5
+    // 2. 거리뷰 버튼에 이벤트 바인딩
+    function viewStreet(){
+        
+        let btn = $('#street');
+        //e.preventDefault();
+            
+        if(streetLayer.getMap()){
+            streetLayer.setMap(null);
+        } else {
+            streetLayer.setMap(map);
         }
-        
-        // 4. 파노라마 생성하기
-        let pano = new naver.maps.Panorama(document.getElementById("pano"), panoramaOptions);
-        /** 파노라마 생성하는 다른 방법
-        let pano = new naver.maps.Ponrama("pano", {
-            position: new naver.maps.Lating(37.3599605, 127.1058814)
-        });
-        */
-
-        // 5. 파노라마 보이기
-        naver.maps.Event.addListener(pano, "init", function() {
-            pano.setVisible(true);
-        });
-        
-        
-        /**
-        6. 파노라마 위치와 시야(POV - Point Of View)
-        1) 상태변경 알림 : pano_changed - 파노라마 id 또는 위치 변경시 발생 / pov_changed - 파노라마 시야 변경시 발생
-        2) 이벤트 : init - 파노라마 초기화를 끝내면 발생 / pano_status - 파노라마 조회를 끝내면 발생
-        */
-        naver.maps.Event.addListener(pano, "pano_changed", function() {
-            // 위치
-            console.log("PonoramaLocation", pano.getLocation());
-        })
-
-        naver.maps.Event.addListener(pano, "pov_changed", function() {
-            // 시야
-            console.log("PonoramaPov", pano.getPov());
-        })
     }
-    
-    naver.maps.onJSContentLoaded = initPanorama;
 
+    
+    // 3. 지도 클릭 이벤트를 받아 파노라마 위치 갱신.
+    naver.maps.Event.addListener(map, 'click', function(e){
+        if(streetLayer.getMap()) {
+            let latlng = e.coord;
+
+            document.getElementById("quit").style.display = "block";
+            pano.setVisible(true);
+            pano.setPosition(latlng);
+        }
+    })
+
+    function quit() {
+        alert('되나');
+    }
 </script>
 </body>
 </html>
